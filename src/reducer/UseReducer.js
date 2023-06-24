@@ -2,68 +2,35 @@ import React from "react";
 
 const SECURITY_CODE = "paradigma";
 
-const UseState = () => {
-  const [state, setState] = React.useState();
+const UseReducer = () => {
+  const [state, dispatch] = React.useReducer(reducer, initialState);
 
   const onConfirm = () => {
-    setState({
-      ...state,
-      error: false,
-      loading: false,
-      confirmed: true,
-    });
+    dispatch({ type: actionTypes.confirm });
   };
 
   const onError = () => {
-    setState({
-      ...state,
-      error: true,
-      loading: false,
-    });
+    dispatch({ type: actionTypes.error });
   };
 
-  const onWrite = (value) => {
-    const valueFinal = value.toLowerCase();
-
-    setState({
-      ...state,
-      value: valueFinal,
-    });
+  const onWrite = ({ target: { value } }) => { 
+    dispatch({ type: actionTypes.write, paylod: value });
   };
 
   const onInputBottom = () => {
-    setState({
-      ...state,
-      error: false,
-      loading: true,
-    });
+    dispatch({ type: actionTypes.bottominput });
   };
 
   const onDeleted = () => {
-    setState({
-      ...state,
-      deleted: true,
-      confirmed: false,
-      value: "",
-    });
+    dispatch({ type: actionTypes.delete });
   };
 
   const onBack = () => {
-    setState({
-      ...state,
-      confirmed: false,
-      deleted: false,
-      value: "",
-    });
+    dispatch({ type: actionTypes.back });
   };
 
   const onReset = () => {
-    setState({
-      ...state,
-      deleted: false,
-      completed: false,
-      value: "",
-    });
+    dispatch({ type: actionTypes.reset });
   };
 
   React.useEffect(() => {
@@ -100,15 +67,11 @@ const UseState = () => {
           type="text"
           placeholder="Código de seguridad"
           value={state.value}
-          onChange={(e) => {
-            onWrite(e.target.value);
-          }}
+          onChange={onWrite}
         />
         <button
           className="py-2 px-4 bg-black rounded text-white"
-          onClick={() => {
-            onInputBottom();
-          }}
+          onClick={onInputBottom}
         >
           Comprobar
         </button>
@@ -122,17 +85,13 @@ const UseState = () => {
         <div className="flex space-x-4">
           <button
             className="py-2 px-4 bg-black rounded text-white"
-            onClick={() => {
-              onDeleted();
-            }}
+            onClick={onDeleted}
           >
             Eliminar
           </button>
           <button
             className="py-2 px-4 bg-black rounded text-white"
-            onClick={() => {
-              onBack();
-            }}
+            onClick={onBack}
           >
             Cancelar
           </button>
@@ -148,9 +107,7 @@ const UseState = () => {
         </p>
         <button
           className="py-2 px-4 bg-black rounded text-white"
-          onClick={() => {
-            onReset();
-          }}
+          onClick={onReset}
         >
           Recuperar
         </button>
@@ -159,4 +116,70 @@ const UseState = () => {
   }
 };
 
-export { UseState };
+const initialState = {
+  value: "",
+  error: false,
+  loading: false,
+  deleted: false,
+  confirmed: false,
+};
+
+const actionTypes = {
+  confirm: "CONFIRMED",
+  error: "ERROR",
+  write: "WRITE",
+  bottominput: "BOTTOMINPUT",
+  delete: "DELETE",
+  back: "BACK",
+  reset: "RESET",
+};
+
+const reducerObject = (state, paylod) => ({
+  [actionTypes.confirm]: {
+    ...state,
+    error: false,
+    loading: false,
+    confirmed: true,
+  },
+  [actionTypes.error]: {
+    ...state,
+    error: true,
+    loading: false,
+  },
+  [actionTypes.write]: {
+    value: paylod,
+  },
+  [actionTypes.bottominput]: {
+    ...state,
+    error: false,
+    loading: true,
+  },
+  [actionTypes.delete]: {
+    ...state,
+    deleted: true,
+    confirmed: false,
+    value: "",
+  },
+  [actionTypes.back]: {
+    ...state,
+    confirmed: false,
+    deleted: false,
+    value: "",
+  },
+  [actionTypes.reset]: {
+    ...state,
+    deleted: false,
+    completed: false,
+    value: "",
+  },
+});
+
+const reducer = (state, action) => {
+  if (reducerObject(state)[action.type]) {
+    return reducerObject(state, action.paylod)[action.type];
+  } else {
+    return state;
+  }
+};
+
+export { UseReducer };
